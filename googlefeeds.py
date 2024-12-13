@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from datetime import datetime
+import pandas as pd
 
 
 def scrape_google_news(search_text):
@@ -43,18 +44,34 @@ def scrape_google_news(search_text):
             articles.append({
                 "headline": title,
                 "url": link,
-                "source": (
-                    datetime.strptime(source, "%Y-%m-%dT%H:%M:%SZ").strftime("%d-%b-%Y %H:%M:%S")
-                    if source
-                    else "Unknown"
-                )
+                "source":source
+                # "source": (
+                #     datetime.strptime(source, "%Y-%m-%dT%H:%M:%SZ").strftime("%d-%b-%Y %H:%M:%S")
+                #     if source
+                #     else "Unknown"
+                # )
             })
+            # Convert the list of dictionaries to a DataFrame
+            df = pd.DataFrame(articles)
+
+            # Convert the 'source' column to datetime, handle invalid formats (e.g., None)
+            df['source'] = pd.to_datetime(df['source'], format="%Y-%m-%dT%H:%M:%SZ", errors='coerce')
+
+            # Fill unknown dates with a placeholder if needed
+            # df['source'] = df['source'].fillna(pd.Timestamp("1970-01-01"))
+
+            # Sort the DataFrame by date (source column)
+            df = df.sort_values(by='source', ascending=False)
+
+            # Convert the source column back to the desired format if needed
+            df['source'] = df['source'].dt.strftime("%d-%b-%Y %H:%M:%S")
+            sorted_articles = df.to_dict(orient="records")
 
         except Exception as e:
             print(f"Error processing article: {e}")
             continue
 
-    return articles
+    return sorted_articles
 
 
 def save_to_json(data, filename="news_search_results.json"):

@@ -1,0 +1,20 @@
+2024-10-08 15:06:11 - ERROR - error while signin
+2024-10-08 15:06:11 - WARNING - you are using nologin method, data you access may be limited
+2024-10-08 15:06:11 - ERROR - error while signin
+2024-10-08 15:06:11 - WARNING - you are using nologin method, data you access may be limited
+2024-10-08 15:06:13 - INFO - symbol NIFTY - interval 1m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:13 - INFO - no biying level for NIFTY for interval 1m
+2024-10-08 15:06:14 - INFO - symbol NIFTY - interval 5m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:14 - INFO - no biying level for NIFTY for interval 5m
+2024-10-08 15:06:15 - INFO - symbol NIFTY - interval 15m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:15 - INFO - no biying level for NIFTY for interval 15m
+2024-10-08 15:06:15 - INFO - symbol NIFTY - interval 30m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:15 - INFO - no biying level for NIFTY for interval 30m
+2024-10-08 15:06:17 - INFO - symbol BANKNIFTY - interval 1m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:17 - INFO - no biying level for BANKNIFTY for interval 1m
+2024-10-08 15:06:17 - INFO - symbol BANKNIFTY - interval 5m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:17 - INFO - no biying level for BANKNIFTY for interval 5m
+2024-10-08 15:06:18 - INFO - symbol BANKNIFTY - interval 15m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:18 - INFO - no biying level for BANKNIFTY for interval 15m
+2024-10-08 15:06:18 - INFO - symbol BANKNIFTY - interval 30m - pe False - ce False - timeframe df_5min
+2024-10-08 15:06:18 - INFO - no biying level for BANKNIFTY for interval 30m

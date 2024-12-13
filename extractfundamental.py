@@ -106,7 +106,7 @@ def fetch_screener_data(url):
             'table': extract_all_tables(soup)
         }
         return cons
-
+        # print(cons)
     except Exception as e:
         return {"error": str(e)}
 
@@ -132,18 +132,31 @@ def generateformat(data):
         for key, value in table['content'].items():
             formatted_string += f"- {key} {value}\n"
 
-    print(formatted_string)
+    # print(formatted_string)
     return formatted_string
 
 
 def main(symbol):
     # URL to scrape
-    url = f"https://www.screener.in/company/{symbol}/consolidated/"
-    # Fetch and display data
-    data = fetch_screener_data(url)
-    format = generateformat(data)
-    # print(json.dumps(data, indent=4))
-    print(format)
+    try:
+        url = f"https://www.screener.in/company/{symbol}/consolidated/"
+        # Fetch and display data
+        data = fetch_screener_data(url)
+
+        # Check if data is None
+        if data is None:
+            raise ValueError("No data fetched from the URL")
+
+        # Generate format
+        format = generateformat(data)
+    except requests.exceptions.RequestException as e:
+        format = 'Request failed: Unable to fetch data from Screener.'
+    except ValueError as ve:
+        format = 'Data unavailable: Could not retrieve data for the given symbol.'
+    except Exception as e:
+        format = f"Some Features is undergoing maintenance."
+
+    # Return the format
     return format
 
 # print(main('TCS'))

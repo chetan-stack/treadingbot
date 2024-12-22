@@ -146,6 +146,7 @@ def generate_content(listdata,head):
 <b>Volume:</b> {stock['volume']}
 <b>View News:</b> `/view{stock['nsecode']}news`
 <b>View Fundamental:</b> `/view{stock['nsecode']}info`
+<b>View technical:</b> `/view{stock['nsecode']}chart`
 """
         return content  # Add an extra newline at the end
     return 'No Data Found'
@@ -284,6 +285,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif split[0].lower() == 'ethereum':
             symbolfilter['name'] = 'ETHUSD'
             symbolfilter['exch_seg'] = 'CRYPTO'
+
+        elif split[0].lower() == 'sensex':
+            symbolfilter['name'] = 'SENSEX'
+            symbolfilter['exch_seg'] = 'BSE'
+
         else:
             symbolfilter = get_item_by_name(split[0])
 
@@ -401,9 +407,34 @@ async def dynamic_view_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text(f"You requested info for: {stock_name}")
         foundmental = extractfundamental.main(stock_name)
         await update.message.reply_text(f"Fundamental Analysis: {foundmental}")
-        # Example: Call a function like fetch_news(stock_name)
-        # news = fetch_news(stock_name)
-        # await update.message.reply_text(news)
+
+    if dynamic_part.endswith('holding'):
+        stock_name = dynamic_part.replace('holding', '')  # Remove 'news' suffix
+        await update.message.reply_text(f"You requested info for: {stock_name}")
+        foundmental = extractfundamental.fetchhollding(stock_name)
+        await update.message.reply_text(f"<pre>{foundmental}</pre>", parse_mode="HTML")
+
+    if dynamic_part.endswith('chart'):
+        print('enter')
+        stock_name = dynamic_part.replace('chart', '')  # Remove 'news' suffix
+        await update.message.reply_text(f"You requested chart for: {stock_name}")
+
+        keyboardbutton = [
+            [f"{stock_name}-1m",f"{stock_name}-5m"],
+            [f"{stock_name}-15m", f"{stock_name}-30m"],
+            [f"{stock_name}-45m", f"{stock_name}-1h"],
+            [f"{stock_name}-3h", f"{stock_name}-4h"],
+            [f"{stock_name}-1d", f"{stock_name}-1w",f"{stock_name}-1M"],
+
+        ]
+        reply_markup = ReplyKeyboardMarkup(keyboardbutton, resize_keyboard=True, one_time_keyboard=True)
+
+        # reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "Choose an option from the menu below to View Chart Cnalysis:\n\n",
+            reply_markup=reply_markup
+        )
+
 
 def main():
     # Initialize the Application
@@ -413,7 +444,7 @@ def main():
     # app.add_handler(CallbackQueryHandler(button_click))
     app.add_handler(CallbackQueryHandler(button_click2))
 
-    app.add_handler(MessageHandler(Regex(r'^/view\w+(news|info)$'), dynamic_view_handler))
+    app.add_handler(MessageHandler(Regex(r'^/view\w+(news|info|chart|holding)$'), dynamic_view_handler))
     app.add_handler(CommandHandler("suggestion", suggestion))
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("menu", start))

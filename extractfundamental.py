@@ -110,10 +110,100 @@ def fetch_screener_data(url):
     except Exception as e:
         return {"error": str(e)}
 
+def fetchhollding(symbol):
+    """
+    Fetches and extracts data from the Screener.in company page.
 
-def generateformat(data):
+    Args:
+        url (str): The Screener.in URL for a specific company.
+
+    Returns:
+        dict: A dictionary containing extracted data.
+    """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.90 Safari/537.36"
+    }
+
+    try:
+        # Send a GET request
+        url = f"https://www.screener.in/company/{symbol}/consolidated/"
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            return {"error": f"Failed to fetch the page. Status code: {response.status_code}"}
+
+        # Parse the HTML content
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Extract key data (Example: Company name, market cap, etc.)
+        data = {}
+
+        # Example: Extracting company name
+        company_name = soup.find("h1").get_text(strip=True) if soup.find("h1") else "Unknown"
+        data["company_name"] = company_name
+
+        # Extract table header
+        container = soup.find('div', id='quarterly-shp')
+
+        table = container.find('table', class_='data-table') if container else None
+        headers = [th.text.strip() for th in table.find('thead').find_all('th')]
+
+        # Extract rows
+        rows = table.find('tbody').find_all('tr')
+
+        # Parse rows into structured data
+        data = []
+
+        data = {}
+        for row in rows:
+            cols = row.find_all('td')
+            key = cols[0].text.strip()
+            values = [col.text.strip() for col in cols[1:]]
+            data[key] = values
+
+        # Generate summary message
+        message = "**Shareholding Pattern Summary (Quarterly)**\n\n"
+        message += "📅 **Mar 2022 - Oct 2024**\n\n"
+
+        for key, values in data.items():
+            if key == "No. of Shareholders":
+                message += f"**{key}:**\n"
+                message += f"👥 Latest: {values[-1]} (Oct 2024)\n"
+                message += f"📈 Growth: Up from {values[0]} (Mar 2022)\n\n"
+            else:
+                start_value = values[0]
+                end_value = values[-1]
+                trend = "Increased" if float(end_value.strip('%')) > float(start_value.strip('%')) else "Decreased"
+                message += f"**{key}:**\n"
+                message += f"📊 Latest: {end_value} (Oct 2024)\n"
+                message += f"📉 Trend: {trend} from {start_value} (Mar 2022)\n\n"
+
+        return message
+        # print('data',cons)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def format_table(headers, data):
+    # Determine column widths
+    column_widths = [max(len(str(item)) for item in col) for col in zip(headers, *data)]
+
+    # Helper to format a row
+    def format_row(row):
+        return " | ".join(f"{str(item):<{width}}" for item, width in zip(row, column_widths))
+
+    # Build the formatted table
+    formatted_string = f"{format_row(headers)}\n"  # Add headers
+    formatted_string += "-+-".join("-" * width for width in column_widths) + "\n"  # Add separator
+    for row in data:
+        formatted_string += f"{format_row(row)}\n"  # Add each row
+
+    return formatted_string
+
+
+def generateformat(data,symbol):
     # Generate formatted string
     formatted_string = f"""
+  View Promotors : `/view{symbol}holding`  
   Company Name : {data['data']['company_name']}
 
   ### Pros:
@@ -148,7 +238,7 @@ def main(symbol):
             raise ValueError("No data fetched from the URL")
 
         # Generate format
-        format = generateformat(data)
+        format = generateformat(data,symbol)
     except requests.exceptions.RequestException as e:
         format = 'Request failed: Unable to fetch data from Screener.'
     except ValueError as ve:
@@ -159,4 +249,4 @@ def main(symbol):
     # Return the format
     return format
 
-# print(main('TCS'))
+# print('fetch data',fetchhollding('TCS'))
